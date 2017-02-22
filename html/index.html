@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<head>
+<style>
+table {
+	border: 1px solid black;
+}
+.main, .sub {
+	color: #00ff00;
+	background-color: #000000;
+	font-family: monospace;
+	font-style: bold;
+	font-size: 56px;
+}
+.sub {
+	font-size: 40px;
+}
+.freq {
+	text-align: right;
+}
+.subt {
+	position: relative;
+	left: 106px;
+	right: 0;
+}
+</style>
+
+<script>
+function sse() {
+	var source=new EventSource('/wrr/stream');
+	source.onmessage = function(e) {
+		data = JSON.parse(e.data);
+		for ( el in data ) {
+			var out = document.getElementById(el);
+			out.innerHTML = data[el];
+		};
+	};
+	source.onerror = function(e) {
+		location.reload();
+	}	
+};
+</script>
+</head>
+<body onload='sse()'>
+<H1>WRR: Web Rig remote</h1>
+<div>
+	<table>
+	<tr>
+		<td class="freq">GHz
+		<td class="freq">MHz
+		<td class="freq">kHz
+		<td class="freq">Hz
+	</tr>
+	<tr>
+		<td class="main" id="mg">--
+		<td class="main" id="mm">---
+		<td class="main" id="mk">---
+		<td class="main" id="mh">---
+	</tr>
+	</table>
+	<table class="subt">
+	<tr>
+		<td class="freq">GHz
+		<td class="freq">MHz
+		<td class="freq">kHz
+		<td class="freq">Hz
+	</tr>
+	<tr>
+		<td class="sub" id="sg">--
+		<td class="sub" id="sm">---
+		<td class="sub" id="sk">---
+		<td class="sub" id="sh">---
+	</tr>
+	</table>
+</div>
+</body>
+</html>
