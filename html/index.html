@@ -18,9 +18,7 @@ table {
 	text-align: right;
 }
 .subt {
-	position: relative;
-	left: 106px;
-	right: 0;
+	float: right;
 }
 </style>
 
@@ -29,9 +27,11 @@ function sse() {
 	var source=new EventSource('/wrr/stream');
 	source.onmessage = function(e) {
 		data = JSON.parse(e.data);
-		for ( el in data ) {
-			var out = document.getElementById(el);
-			out.innerHTML = data[el];
+		if ( data.hasOwnProperty('freq') ) {
+			for ( el in data["freq"] ) {
+				var out = document.getElementById(el);
+				out.innerHTML = data.freq[el];
+			};
 		};
 	};
 	source.onerror = function(e) {
@@ -42,31 +42,45 @@ function sse() {
 </head>
 <body onload='sse()'>
 <H1>WRR: Web Rig remote</h1>
-<div>
-	<table>
+<div style='width:400px'> 
+	<table class="subt">
 	<tr>
-		<td class="freq">GHz
 		<td class="freq">MHz
 		<td class="freq">kHz
 		<td class="freq">Hz
 	</tr>
 	<tr>
-		<td class="main" id="mg">--
-		<td class="main" id="mm">---
+		<td class="main" id="mm">----
 		<td class="main" id="mk">---
 		<td class="main" id="mh">---
 	</tr>
 	</table>
+<svg height="80" width="140">
+  <defs>
+    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:rgb(170,170,170);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:rgb(0,225,0);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+    </radialGradient>
+    <radialGradient id="grad3" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+      <stop offset="0%" style="stop-color:rgb(225,0,0);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+    </radialGradient>
+  </defs>
+  <circle cx="115" cy="40" r="25" fill="url(#grad1)" />
+  Sorry, your browser does not support inline SVG.
+</svg>
 	<table class="subt">
 	<tr>
-		<td class="freq">GHz
 		<td class="freq">MHz
 		<td class="freq">kHz
 		<td class="freq">Hz
 	</tr>
 	<tr>
-		<td class="sub" id="sg">--
-		<td class="sub" id="sm">---
+		<td class="sub" id="sm">----
 		<td class="sub" id="sk">---
 		<td class="sub" id="sh">---
 	</tr>

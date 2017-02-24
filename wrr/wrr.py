@@ -10,23 +10,26 @@ def eventStream():
 	pubsub.subscribe('trx1')
 	try:
 		for message in pubsub.listen():
-			freq = message['data']
-			freq = int(freq.decode('ascii'))
+			mtype = message['data']
+			mtype = mtype.decode('ascii')
+			freq = int()
+			if mtype == 'freq':
+				vfo = redis.hget('trx1','vfo')
+				vfo = vfo.decode('ascii')
+				frq = redis.hget('trx1','{}_freq'.format(vfo))
+				freq = int(frq.decode('ascii'))
 			tfreq = freq + 1886000000
-			print(tfreq)
 			sh = freq % 1000
 			sk = (freq // 1000) % 1000
-			sm = ( freq // 1000000 ) % 1000
-			sg = ( freq // 1000000000 ) % 1000
+			sm = ( freq // 1000000 ) 
 			mh = tfreq % 1000
 			mk = (tfreq // 1000) % 1000
-			mm = ( tfreq // 1000000 ) % 1000
-			mg = ( tfreq // 1000000000 ) % 1000
-			print("{} {} {} {}".format(mg, mm, mk, mh))
-			md = '"mg": "{:02d}", "mm": "{:03d}", "mk": "{:03d}", "mh": "{:03d}"'.format(mg, mm, mk, mh)
-			sd = '"sg": "{:02d}", "sm": "{:03d}", "sk": "{:03d}", "sh": "{:03d}"'.format(sg, sm, sk, sh)
+			mm = ( tfreq // 1000000 )
+			print("{} {} {}".format(mm, mk, mh))
+			md = '"mm": "{:04d}", "mk": "{:03d}", "mh": "{:03d}"'.format(mm, mk, mh)
+			sd = '"sm": "{:04d}", "sk": "{:03d}", "sh": "{:03d}"'.format(sm, sk, sh)
 			print("{{ {}, {} }}".format(md, sd))
-			yield "data: {{ {}, {} }}\n\n".format(md, sd)
+			yield 'data: {{ "freq": {{ {}, {} }} }}\n\n'.format(md, sd)
 	except GeneratorExit:
 		pubsub.unsubscribe('trx1')
 
