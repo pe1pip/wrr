@@ -3,6 +3,7 @@
 <style>
 table {
 	border: 1px solid black;
+	float: right;
 }
 .main, .sub {
 	color: #00ff00;
@@ -18,8 +19,20 @@ table {
 	text-align: right;
 }
 .subt {
-	float: right;
+	border: 1px solid black;
 }
+td.stat {
+	text-align: center;
+	border: 1px solid black;
+	width: 81px;
+	color: #e0e0e0;
+}
+td.mode {
+	text-align: center;
+	border: 1px solid black;
+	width: 81px;
+}
+
 </style>
 
 <script>
@@ -42,20 +55,28 @@ function sse() {
 </head>
 <body onload='sse()'>
 <H1>WRR: Web Rig remote</h1>
-<div style='width:400px'> 
-	<table class="subt">
+<div style='width:360px'> 
+		<table>
+		<tr>
+			<td class="freq">MHz
+			<td class="freq">kHz
+			<td class="freq">Hz
+		</tr>
+		<tr>
+			<td class="main" id="mm">----
+			<td class="main" id="mk">---
+			<td class="main" id="mh">---
+		</tr>
+		</table>
+	<table>
 	<tr>
-		<td class="freq">MHz
-		<td class="freq">kHz
-		<td class="freq">Hz
-	</tr>
-	<tr>
-		<td class="main" id="mm">----
-		<td class="main" id="mk">---
-		<td class="main" id="mh">---
+		<td class="stat" id="split">split</td>
+		<td class="stat" id="hiswr">HI SWR</td>
+		<td class="stat" id="discr">centered</td>
+		<td class="mode" id="mode">USB</td>
 	</tr>
 	</table>
-<svg height="80" width="140">
+<svg height="70" width="100">
   <defs>
     <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
       <stop offset="0%" style="stop-color:rgb(170,170,170);stop-opacity:1" />
@@ -70,7 +91,7 @@ function sse() {
       <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
     </radialGradient>
   </defs>
-  <circle cx="115" cy="40" r="25" fill="url(#grad1)" />
+  <circle cx="50" cy="38" r="25" fill="url(#grad1)" />
   Sorry, your browser does not support inline SVG.
 </svg>
 	<table class="subt">
