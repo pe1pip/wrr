@@ -1,5 +1,7 @@
 # WRR - something
 
+A web-based remote control for you HAM radio RIG, in python, html5 and javascript.
+
 ## Setup:
 
 install:
@@ -13,7 +15,9 @@ install:
  * python3-serial
  * redis-server
 
-or whatever these packages are called on your favourite OS/Distro
+or whatever these packages are called on your favourite OS/Distro. Be sure to have something fairly recent. Debian stable won't do, testing will. Most notably you want a recent version of flask (0.12) and redis (3.2.6 or 'better'). Of course nobody forces you to user nginx and uwsgi, but this is what I use and works for me.
+
+I just started woring in /var/www/html and /var/www/wrr, if you like other paths better, feel free to adjust the nginx and uwsgi configs as you see fit. 
 
 ## nginx
 
