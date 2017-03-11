@@ -2,6 +2,10 @@
 
 A web-based remote control for you HAM radio RIG, in python, html5 and javascript.
 
+## Note:
+
+Code is in alpha state. I've been able to display the freq. on the rig on the website, but nothing more has been tested.
+
 ## Setup:
 
 install:
