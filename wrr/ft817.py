@@ -225,3 +225,7 @@ class trx:
 		self.serialport.write(cmd)
 		cmd = bytes.fromhex(commands['power_on'])
 		self.serialport.write(cmd)
+
+	def powerOFF(self):
+		cmd = bytes.fromhex(commands['power_off'])
+		self.serialport.write(cmd)
