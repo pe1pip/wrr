@@ -233,3 +233,12 @@ class trx:
 	def powerOFF(self):
 		cmd = bytes.fromhex(commands['power_off'])
 		self.serialport.write(cmd)
+
+	def toggleVFO(self):
+		cmd = bytes.fromhex(commands['toggle_vfo'])
+		self.serialport.write(cmd)
+		if self.vfo == 'a':
+			self.vfo = 'b'
+		else:
+			self.vfo = 'a'
+		self.readFreq()
