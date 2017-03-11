@@ -1,6 +1,21 @@
 # WRR - something
 
-A web-based remote control for you HAM radio RIG, in python, html5 and javascript.
+A web-based remote control for your HAM radio RIG, in python, html5 and javascript.
+
+Goals:
+
+ 1. display the rig freqency, mode, etc.
+ 2. display everything
+ 3. control everything less PTT
+ 4. 2-way audio streams
+ 5. control PTT
+
+Note that part of 1. is that I own transverters and this code displays the input/output freq. of the transverter.
+
+So further goals:
+
+ 6. Control transverter off-set
+ 7. Select a transverter
 
 ## Note:
 
