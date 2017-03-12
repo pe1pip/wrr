@@ -4,7 +4,6 @@ from redis import StrictRedis
 import serial
 
 redis = StrictRedis()
-pubsub = redis.pubsub()
 
 # redis structure
 # pubsub trx1 possible messages:
@@ -56,7 +55,7 @@ class trx:
 		self.squelsh = bool()
 		self.pmeter = int()
 		self.split = bool()
-		self.swr = bool()
+		self.hiswr = bool()
 		self.ptt = bool()
 		self.pubsub = pubsubname
 		self.serialname = serialname
@@ -64,6 +63,9 @@ class trx:
 
 	def printFreq(self):
 		print(self.vfoa.freq)
+
+	def printMode(self):
+		print(self.vfoa.mode)
 
 	def readRX(self):
 		cmd = bytes.fromhex('00 00 00 00 e7')
@@ -99,8 +101,10 @@ class trx:
 			redis.hset(self.pubsub,"discr",discr)
 			up_rx = True
 		# publish the updates
-		pubsub.publish(self.pubsub,"rx") if up_rx
-		pubsub.publish(self.pubsub,"ps") if up_ps
+		if up_rx:
+			redis.publish(self.pubsub,"rx")
+		if up_ps:
+			redis.publish(self.pubsub,"ps")
 
 	def readTX(self):
 		cmd = bytes.fromhex('00 00 00 00 f7')
@@ -110,7 +114,7 @@ class trx:
 		ptt = txstat & 128
 		ptt = bool(ptt)
 		hiswr = txstat & 64
-		hiswr = boot(hiswr)
+		hiswr = bool(hiswr)
 		split = txstat & 32
 		split = bool(split)
 		pmeter = txstat & 15
@@ -137,8 +141,10 @@ class trx:
 			redis.hset(self.pubsub,"split",split)
 			up_tx = True
 		# publish the updates
-		pubsub.publish(self.pubsub,"tx") if up_tx
-		pubsub.publish(self.pubsub,"ps") if up_ps
+		if up_tx:
+			redis.publish(self.pubsub,"tx")
+		if up_ps:
+			redis.publish(self.pubsub,"ps")
 
 
 	def readFreqMode(self):
@@ -150,13 +156,13 @@ class trx:
 		freqmode = list(freqmode)
 		# determine the vfo
 		vfo = self.vfoa
-		if self.vfo == b:
+		if self.vfo == 'b':
 			vfo = self.vfob
 		# do not send an update unless something changed
 		up_freq = False
 		# first 4 bytes are the frequency in packed bcd in 10 Hz 
 		freq = 0
-		for byte in freqmode[0:3]:
+		for byte in freqmode[0:4]:
 			lsb = byte & 15
 			msb = byte >> 4
 			freq = ( freq * 100 ) + ( msb * 10 ) + lsb
@@ -177,4 +183,5 @@ class trx:
 			redis.hset(self.pubsub,"{}_mode".format(self.vfo),mode)
 			up_freq = True
 		# send the update
-		pubsub.publish(self.pubsub,"freq") if up_freq
+		if up_freq:
+			redis.publish(self.pubsub,"freq")
