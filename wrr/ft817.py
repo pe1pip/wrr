@@ -7,7 +7,7 @@ redis = StrictRedis()
 
 # redis structure
 # pubsub trx1 possible messages:
-#  - vfo: vfo, mode and/or frequency changed
+#  - freq: vfo, mode and/or frequency changed
 #  - ps: ptt or squelsh open indication changed
 #  - tx: split, hiswr or pmeter changed
 #  - rx: discr, code or smeter changed
@@ -18,8 +18,8 @@ redis = StrictRedis()
 # - b_freq: frequency on vfo b
 # - b_mode: mode on vfo b
 # - vfo: a or b
-# - ptt: state of the PTT
-# - squelch: is the squelsh open?
+# - ptt: True if the PTT is not active
+# - squelch: is the squelsh active (=not open)?
 # - smeter: value (0-15) on the s meter
 # - pmeter: value (0-15) of the power meter
 # - discr: is the FM discriminator locked
@@ -67,6 +67,9 @@ class trx:
 	def printMode(self):
 		print(self.vfoa.mode)
 
+	def pubDummy(self):
+		redis.publish(self.pubsub,"dummy")
+
 	def readRX(self):
 		cmd = bytes.fromhex('00 00 00 00 e7')
 		self.serialport.write(cmd)
@@ -112,7 +115,7 @@ class trx:
 		txstat = self.serialport.read(1)
 		txstat = list(txstat)[0]
 		ptt = txstat & 128
-		ptt = bool(ptt)
+		ptt = not bool(ptt)
 		hiswr = txstat & 64
 		hiswr = bool(hiswr)
 		split = txstat & 32
@@ -121,25 +124,26 @@ class trx:
 		up_ps = False
 		up_tx = False
 		#
-		if pmeter != self.pmeter:
-			self.pmeter = pmeter
-			redis.hset(self.pubsub,"pmeter",pmeter)
-			up_tx = True
-		#
 		if ptt != self.ptt:
 			self.ptt = ptt
 			redis.hset(self.pubsub,"ptt",ptt)
 			up_ps = True
-		#
-		if hiswr != self.hiswr:
-			self.hiswr = hiswr
-			redis.hset(self.pubsub,"hiswr",hiswr)
-			up_tx = True
-		#
-		if split != self.split:
-			self.split = split
-			redis.hset(self.pubsub,"split",split)
-			up_tx = True
+		if ptt:	# values are only valid if PTT is active
+			#
+			if pmeter != self.pmeter:
+				self.pmeter = pmeter
+				redis.hset(self.pubsub,"pmeter",pmeter)
+				up_tx = True
+			#
+			if hiswr != self.hiswr:
+				self.hiswr = hiswr
+				redis.hset(self.pubsub,"hiswr",hiswr)
+				up_tx = True
+			#
+			if split != self.split:
+				self.split = split
+				redis.hset(self.pubsub,"split",split)
+				up_tx = True
 		# publish the updates
 		if up_tx:
 			redis.publish(self.pubsub,"tx")
@@ -172,7 +176,7 @@ class trx:
 			vfo.freq = freq
 			redis.hset(self.pubsub,"{}_freq".format(self.vfo),freq)
 			up_freq = True
-
+		redis.hset(self.pubsub,"vfo",self.vfo)
 		# the mode is in the 5th byte received
 		mode = freqmode[4] & 15
 		# translate using our dictionary
