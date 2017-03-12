@@ -12,8 +12,8 @@ def eventStream():
 		for message in pubsub.listen():
 			mtype = message['data']
 			mtype = mtype.decode('ascii')
-			freq = int()
 			if mtype == 'freq':
+				freq = int()
 				vfo = redis.hget('trx1','vfo')
 				print("vfo: {}".format(vfo))
 				vfo = vfo.decode('ascii')
@@ -39,7 +39,7 @@ def eventStream():
 			if mtype == 'rx':
 				continue
 			if mtype == 'dummy':
-				yield 'data: {{ "dummy": "0" }}'
+				yield 'data: { "dummy": "0" }\n\n'
 
 	except GeneratorExit:
 		pubsub.unsubscribe('trx1')

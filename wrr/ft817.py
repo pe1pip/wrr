@@ -210,7 +210,11 @@ class trx:
 		# the mode is in the 5th byte received
 		mode = freqmode[4] & 15
 		# translate using our dictionary
-		mode = modes[mode]
+		if mode in modes:
+			mode = modes[mode]
+		else:
+			print("Guessing mode")
+			mode ='ssb'
 		# if the mode changed, update our status, the redis hash and send an update
 		if vfo.mode != mode:
 			vfo.mode = mode
@@ -221,7 +225,7 @@ class trx:
 			redis.publish(self.pubsub,"freq")
 
 	def powerON(self):
-		cmd = bytes.fromhex(commands['read_freq'])
+		cmd = bytes.fromhex(commands['lock_off'])
 		self.serialport.write(cmd)
 		cmd = bytes.fromhex(commands['power_on'])
 		self.serialport.write(cmd)
