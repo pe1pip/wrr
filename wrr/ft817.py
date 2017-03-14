@@ -47,7 +47,7 @@ commands = {
 	'lock_off' : '00 00 00 00 80',
 	'ptt_on' : '00 00 00 00 08',
 	'ptt_off' : '00 00 00 00 88',
-	'set_freq' : '00 00 00 00 01',
+	'set_freq' : '{} {} {} {} 01',
 	'set_mode' : '00 00 00 00 07',
 	'clar_on' : '00 00 00 00 05',
 	'clar_off' : '00 00 00 00 85',
@@ -106,7 +106,7 @@ class trx:
 		rxstat = self.serialport.read(1)
 		rxstat = list(rxstat)[0]
 		sq = rxstat & 128
-		sq = bool(sq)
+		sq = not bool(sq)
 		code = rxstat & 64
 		code = bool(code)
 		discr = rxstat & 32
@@ -242,3 +242,20 @@ class trx:
 		else:
 			self.vfo = 'a'
 		self.readFreq()
+
+    def lockON(self):
+        cmd = bytes.fromhex(commands['lock_on'])
+        self.serialport.write(cmd)
+
+    def lockOFF(self):
+        cmd = bytes.fromhex(commands['lock_off'])
+        self.serialport.write(cmd)
+
+    def setFreq(self, freq):
+        freq = freq / 10
+        f1 = "{:02d}".format(int(freq % 100))
+        f2 = "{:02d}".format(int(freq/100 % 100))
+        f3 = "{:02d}".format(int(freq/10000 % 100))
+        f4 = "{:02d}".format(int(freq/1000000 % 100))
+        cmd = bytes.fromhex(commands['set_freq'].format(f4, f3, f2, f1))
+        self.serialport.write(cmd)
