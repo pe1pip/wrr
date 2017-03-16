@@ -243,19 +243,19 @@ class trx:
 			self.vfo = 'a'
 		self.readFreq()
 
-    def lockON(self):
-        cmd = bytes.fromhex(commands['lock_on'])
-        self.serialport.write(cmd)
+	def lockON(self):
+		cmd = bytes.fromhex(commands['lock_on'])
+		self.serialport.write(cmd)
 
-    def lockOFF(self):
-        cmd = bytes.fromhex(commands['lock_off'])
-        self.serialport.write(cmd)
+	def lockOFF(self):
+		cmd = bytes.fromhex(commands['lock_off'])
+		self.serialport.write(cmd)
 
-    def setFreq(self, freq):
-        freq = freq / 10
-        f1 = "{:02d}".format(int(freq % 100))
-        f2 = "{:02d}".format(int(freq/100 % 100))
-        f3 = "{:02d}".format(int(freq/10000 % 100))
-        f4 = "{:02d}".format(int(freq/1000000 % 100))
-        cmd = bytes.fromhex(commands['set_freq'].format(f4, f3, f2, f1))
-        self.serialport.write(cmd)
+	def setFreq(self, freq):
+		freq = freq / 10
+		f1 = "{:02d}".format(int(freq % 100))
+		f2 = "{:02d}".format(int(freq/100 % 100))
+		f3 = "{:02d}".format(int(freq/10000 % 100))
+		f4 = "{:02d}".format(int(freq/1000000 % 100))
+		cmd = bytes.fromhex(commands['set_freq'].format(f4, f3, f2, f1))
+		self.serialport.write(cmd)
