@@ -121,17 +121,17 @@ class trx:
 			
 		if sq != self.squelsh:
 			self.squelsh = sq
-			redis.hset(self.pubsub,"squelsh",sq)
+			redis.hset(self.pubsub,"squelsh",int(sq))
 			up_ps = True
 
 		if code != self.code:
 			self.code = code
-			redis.hset(self.pubsub,"code",code)
+			redis.hset(self.pubsub,"code",int(code))
 			up_rx = True
 
 		if discr != self.discr:
 			self.discr = discr
-			redis.hset(self.pubsub,"discr",discr)
+			redis.hset(self.pubsub,"discr",int(discr))
 			up_rx = True
 		# publish the updates
 		if up_rx:
@@ -167,12 +167,12 @@ class trx:
 			#
 			if hiswr != self.hiswr:
 				self.hiswr = hiswr
-				redis.hset(self.pubsub,"hiswr",hiswr)
+				redis.hset(self.pubsub,"hiswr",int(hiswr))
 				up_tx = True
 			#
 			if split != self.split:
 				self.split = split
-				redis.hset(self.pubsub,"split",split)
+				redis.hset(self.pubsub,"split",int(split))
 				up_tx = True
 		# publish the updates
 		if up_tx:
