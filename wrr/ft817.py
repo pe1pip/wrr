@@ -80,13 +80,13 @@ class trx:
 		self.vfob = vfo()
 		self.vfo = "a"		# no way of knowing which one is active, so we assume a
 		self.smeter = int()
-		self.discr = bool()
-		self.code = bool()
-		self.squelsh = bool()
+		self.discr = False
+		self.code = False
+		self.squelsh = False
 		self.pmeter = int()
-		self.split = bool()
-		self.hiswr = bool()
-		self.ptt = bool()
+		self.split = False
+		self.hiswr = False
+		self.ptt = False
 		self.pubsub = pubsubname
 		self.serialname = serialname
 		self.serialport = serial.Serial(serialname, 4800, timeout=0.2)
@@ -98,7 +98,7 @@ class trx:
 		print(self.vfoa.mode)
 
 	def pubDummy(self):
-		redis.publish(self.pubsub,"dummy")
+		redis.publish(self.pubsub,"freq")
 
 	def readRX(self):
 		cmd = bytes.fromhex('00 00 00 00 e7')
@@ -128,7 +128,7 @@ class trx:
 			self.code = code
 			redis.hset(self.pubsub,"code",int(code))
 			up_rx = True
-
+		
 		if discr != self.discr:
 			self.discr = discr
 			redis.hset(self.pubsub,"discr",int(discr))
@@ -225,8 +225,8 @@ class trx:
 			redis.publish(self.pubsub,"freq")
 
 	def powerON(self):
-		cmd = bytes.fromhex(commands['lock_off'])
-		self.serialport.write(cmd)
+		#cmd = bytes.fromhex(commands['lock_off'])
+		#self.serialport.write(cmd)
 		cmd = bytes.fromhex(commands['power_on'])
 		self.serialport.write(cmd)
 

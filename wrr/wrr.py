@@ -26,8 +26,15 @@ def mkfreq():
     return 'data: {{ "freq": {{ {}, {} }} }}\n\n'.format(md, sd)
 
 def mkrxled():
-    tx = redis.hget('trx1','ptt')
-    rx = redis.hget('trx1','squelsh')
+    tx = int(redis.hget('trx1','ptt'))
+    rx = int(redis.hget('trx1','squelsh'))
+	led = 'off'
+	if tx:
+		led = 'tx'
+	else:
+		if rx:
+			led = 'rx'
+	return 'data: {{ "led": "{}" }}'.format(led)
 
 def eventStream():
 	pubsub = redis.pubsub(ignore_subscribe_messages=True)
@@ -40,7 +47,7 @@ def eventStream():
 				data = mkfreq()
 				continue
 			if mtype == 'ps':
-				continue
+				data = mkrxled()
 			if mtype == 'tx':
 				continue
 			if mtype == 'rx':
