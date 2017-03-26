@@ -5,6 +5,17 @@ table {
 	border: 1px solid black;
 	float: right;
 }
+div.menu {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	background-color: white;
+}
+	
+tr.menu:hover {
+	background-color: gray;
+}
+
 .main, .sub {
 	color: #00ff00;
 	background-color: #000000;
@@ -81,6 +92,33 @@ function sse() {
 		location.reload();
 	}	
 };
+
+function showmenu(event) {
+	var el;
+	el = document.getElementById("mm");
+	var coords = el.getBoundingClientRect();
+	el = document.getElementById("xvtmenu");
+	el.style.left = event.clientX + "px";
+	el.style.top = event.clientY + "px";
+	el.style.display="initial";
+};
+
+window.onclick = function(event) {
+	if (!event.target.matches('.menu')) {
+		var el = document.getElementById('xvtmenu');
+		el.style.display="none";
+	} else {
+		console.log(event.target.innerHTML);
+		req = new XMLHttpRequest();
+		req.open("POST",'/wrr/send',true);
+		req.setRequestHeader("Content-type","application/json");
+		text = '{ "set-offset": "' + event.target.innerHTML + '" }';
+		req.send(text);
+		var el = document.getElementById('xvtmenu');
+		el.style.display="none";
+	};
+};
+		
 </script>
 </head>
 <body onload='sse()'>
@@ -93,7 +131,7 @@ function sse() {
 			<td class="freq">Hz
 		</tr>
 		<tr>
-			<td class="main" id="mm">----
+			<td class="main" id="mm" onmousedown="showmenu(event)">----
 			<td class="main" id="mk">---
 			<td class="main" id="mh">---
 		</tr>
@@ -137,6 +175,15 @@ function sse() {
 		<td class="sub" id="sh">---
 	</tr>
 	</table>
+</div>
+<div class="menu" id="xvtmenu">
+<table>
+<tr class="menu"><td class="menu"> None - 0 MHz
+<tr class="menu"><td class="menu"> 23cm - 1154 MHz
+<tr class="menu"><td class="menu"> 13cm - 1886 MHz
+<tr class="menu"><td class="menu"> 9cm - 2966 MHz
+<tr class="menu"><td class="menu"> 6cm - 5326 MHz
+</table>
 </div>
 </body>
 </html>
