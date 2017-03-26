@@ -11,6 +11,8 @@ def mkfreq():
     print("vfo: {}".format(vfo))
     vfo = vfo.decode('ascii')
     frq = redis.hget('trx1','{}_freq'.format(vfo))
+	mode = redis.hget('trx1','{}_mode'.format(vfo))
+	mode = mode.decode('ascii')
     freq = int(frq.decode('ascii'))
     tfreq = freq + 1886000000
     sh = freq % 1000
@@ -19,11 +21,14 @@ def mkfreq():
     mh = tfreq % 1000
     mk = (tfreq // 1000) % 1000
     mm = ( tfreq // 1000000 )
-    print("{} {} {}".format(mm, mk, mh))
+    # print("{} {} {}".format(mm, mk, mh))
     md = '"mm": "{:04d}", "mk": "{:03d}", "mh": "{:03d}"'.format(mm, mk, mh)
     sd = '"sm": "{:04d}", "sk": "{:03d}", "sh": "{:03d}"'.format(sm, sk, sh)
-    print("{{ {}, {} }}".format(md, sd))
-    return 'data: {{ "freq": {{ {}, {} }} }}\n\n'.format(md, sd)
+    # print("{{ {}, {} }}".format(md, sd))
+	fd = '"freq": {{ {}, {} }}'.format(md, sd)
+	md = '"mode": "{}"'.format(mode)
+	vd = '"vfo": "{}"'.format(vfo)
+    return 'data: {{ {},\n{},\n{} }}\n\n'.format(fd, md, vd)
 
 def mkrxled():
     tx = int(redis.hget('trx1','ptt'))
