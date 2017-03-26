@@ -156,7 +156,7 @@ class trx:
 		#
 		if ptt != self.ptt:
 			self.ptt = ptt
-			redis.hset(self.pubsub,"ptt",ptt)
+			redis.hset(self.pubsub,"ptt",int(ptt))
 			up_ps = True
 		if ptt:	# values are only valid if PTT is active
 			#

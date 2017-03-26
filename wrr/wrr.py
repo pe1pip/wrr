@@ -28,7 +28,7 @@ def mkfreq():
 	fd = '"freq": {{ {}, {} }}'.format(md, sd)
 	md = '"mode": "{}"'.format(mode)
 	vd = '"vfo": "{}"'.format(vfo)
-	return 'data: {{ {},\n{},\n{} }}\n\n'.format(fd, md, vd)
+	return 'data: {{ {}, {}, {} }}\n\n'.format(fd, md, vd)
 
 def mkrxled():
 	tx = int(redis.hget('trx1','ptt'))
@@ -39,7 +39,7 @@ def mkrxled():
 	else:
 		if rx:
 			led = 'rx'
-	return 'data: {{ "led": "{}" }}'.format(led)
+	return 'data: {{ "led": "{}" }}\n\n'.format(led)
 
 def eventStream():
 	pubsub = redis.pubsub(ignore_subscribe_messages=True)
@@ -63,6 +63,9 @@ def eventStream():
 
 	except GeneratorExit:
 		pubsub.unsubscribe('trx1')
+	except OSError:
+		pubsub.unsubscribe('trx1')
+	
 
 @app.route('/')
 def route():

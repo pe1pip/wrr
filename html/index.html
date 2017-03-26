@@ -24,13 +24,13 @@ table {
 td.stat {
 	text-align: center;
 	border: 1px solid black;
-	width: 81px;
+	width: 66px;
 	color: #e0e0e0;
 }
 td.mode {
 	text-align: center;
 	border: 1px solid black;
-	width: 81px;
+	width: 60px;
 }
 
 </style>
@@ -39,11 +39,41 @@ td.mode {
 function sse() {
 	var source=new EventSource('/wrr/stream');
 	source.onmessage = function(e) {
+		console.log(e.data);
 		data = JSON.parse(e.data);
 		if ( data.hasOwnProperty('freq') ) {
+			console.log("data has freq property");
 			for ( el in data["freq"] ) {
 				var out = document.getElementById(el);
 				out.innerHTML = data.freq[el];
+			};
+		};
+		if ( data.hasOwnProperty('mode') ) {
+			console.log("data has mode property");
+			var out = document.getElementById("mode");
+			out.innerHTML = data.mode;
+		};
+		if ( data.hasOwnProperty('vfo') ) {
+			console.log("data has vfo property");
+			var out = document.getElementById("vfo");
+			out.innerHTML = "vfo: " + data.vfo.toUpperCase();
+		};
+		if ( data.hasOwnProperty('led') ) {
+			var out = document.getElementById("txrxled");
+			console.log("Led: " + data.led);
+			switch ( data.led ) {
+				case "off" :
+					console.log("Setting led off");
+					out.style.fill="url(#grad1)";
+					break;
+				case "rx" :
+					console.log("Setting led rx");
+					out.style.fill="url(#grad2)";
+					break;
+				case "tx" :
+					console.log("Setting led tx");
+					out.style.fill="url(#grad3)";
+					break;
 			};
 		};
 	};
@@ -70,6 +100,7 @@ function sse() {
 		</table>
 	<table>
 	<tr>
+		<td class="mode" id="vfo">vfo: A</td>
 		<td class="stat" id="split">split</td>
 		<td class="stat" id="hiswr">HI SWR</td>
 		<td class="stat" id="discr">centered</td>
@@ -91,7 +122,7 @@ function sse() {
       <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
     </radialGradient>
   </defs>
-  <circle cx="50" cy="38" r="25" fill="url(#grad1)" />
+  <circle id="txrxled" cx="50" cy="38" r="25" fill="url(#grad1)" />
   Sorry, your browser does not support inline SVG.
 </svg>
 	<table class="subt">
