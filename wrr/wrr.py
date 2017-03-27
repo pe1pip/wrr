@@ -1,9 +1,10 @@
-from flask import Flask, Response
+from flask import Flask, Response, request, jsonify
 from redis import StrictRedis
 from time import sleep
 
 app = Flask(__name__)
 redis = StrictRedis()
+offset = 1886000000
 
 def mkfreq():
 	freq = int()
@@ -14,7 +15,7 @@ def mkfreq():
 	mode = redis.hget('trx1','{}_mode'.format(vfo))
 	mode = mode.decode('ascii')
 	freq = int(frq.decode('ascii'))
-	tfreq = freq + 1886000000
+	tfreq = freq + offset
 	sh = freq % 1000
 	sk = (freq // 1000) % 1000
 	sm = ( freq // 1000000 ) 
@@ -78,3 +79,8 @@ def stream():
 	resp =  Response(eventStream(), mimetype="text/event-stream")
 	resp.headers['X-Accel-Buffering'] = 'no'
 	return resp
+
+@app.route('/send', methods=['GET', 'POST'])
+def send():
+	print(request.headers['set-offset'])
+	return "OK"
