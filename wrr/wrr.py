@@ -6,6 +6,27 @@ app = Flask(__name__)
 redis = StrictRedis()
 offset = 1886000000
 
+offsets = {
+	"None - 0 MHz": 0,
+	"23cm - 1154 MHz": 1152000000,
+	"13cm - 1886 MHz": 1886000000,
+	"13cm - 1888 MHz": 1888000000,
+	"9cm - 2966 MHz": 2966000000,
+	"9cm - 2968 MHz": 2968000000,
+	"6cm - 5326 MHz": 5326000000,
+	"6cm - 5328 MHz": 5328000000
+}
+
+def setOffset(val):
+	if val in offsets:
+		offset = offsets[val]
+		print("offset set to {}".format(offset))
+		redis.hset('trx1','offset',offset)
+		redis.publish('trx1','freq')
+		return 204
+	else:
+		return 404
+
 def mkfreq():
 	freq = int()
 	vfo = redis.hget('trx1','vfo')
@@ -15,6 +36,10 @@ def mkfreq():
 	mode = redis.hget('trx1','{}_mode'.format(vfo))
 	mode = mode.decode('ascii')
 	freq = int(frq.decode('ascii'))
+	offset = redis.hget('trx1','offset')
+	offset = offset.decode('ascii')
+	offset = int(offset)
+	print("offset is {}".format(offset))
 	tfreq = freq + offset
 	sh = freq % 1000
 	sk = (freq // 1000) % 1000
@@ -82,5 +107,7 @@ def stream():
 
 @app.route('/send', methods=['GET', 'POST'])
 def send():
-	print(request.headers['set-offset'])
-	return "OK"
+	command = request.headers['wrr-command']
+	if command == 'set-offset':
+		rc = setOffset(request.headers['set-offset'].strip())
+	return "", rc

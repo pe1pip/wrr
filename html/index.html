@@ -111,6 +111,7 @@ window.onclick = function(event) {
 		console.log(event.target.innerHTML);
 		req = new XMLHttpRequest();
 		req.open("POST",'/wrr/send',true);
+		req.setRequestHeader("wrr-command","set-offset");
 		req.setRequestHeader("set-offset",event.target.innerHTML);
 		req.send();
 		var el = document.getElementById('xvtmenu');
