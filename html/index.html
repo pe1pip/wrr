@@ -36,6 +36,7 @@ td.stat {
 	text-align: center;
 	border: 1px solid black;
 	width: 66px;
+	background-color: black;
 	color: #e0e0e0;
 }
 td.mode {
@@ -69,6 +70,24 @@ function sse() {
 			var out = document.getElementById("vfo");
 			out.innerHTML = "vfo: " + data.vfo.toUpperCase();
 		};
+		if ( data.hasOwnProperty('split') ) {
+			console.log("data has split property");
+			var out = document.getElementById("split");
+			if ( data.split == 'on' ) {
+				out.style.color = '#00ff00';
+			} else {
+				out.style.color = '#e0e0e0';
+			};
+		};
+		if ( data.hasOwnProperty('hiswr') ) {
+			console.log("data has split property");
+			var out = document.getElementById("hiswr");
+			if ( data.hiswr == 'on' ) {
+				out.style.color = 'red';
+			} else {
+				out.style.color = '#e0e0e0';
+			};
+		};
 		if ( data.hasOwnProperty('led') ) {
 			var out = document.getElementById("txrxled");
 			console.log("Led: " + data.led);
@@ -94,27 +113,59 @@ function sse() {
 };
 
 function showmenu(event) {
+	id = event.target.id;
+	console.log(id);
 	var el;
-	el = document.getElementById("mm");
-	var coords = el.getBoundingClientRect();
-	el = document.getElementById("xvtmenu");
+	el = document.getElementById(id);
+	if ( id == "mm" ) {
+		el = document.getElementById("xvtmenu");
+	};
+	if ( id == "mode" ) {
+		el = document.getElementById("modemenu");
+	};
 	el.style.left = event.clientX + "px";
 	el.style.top = event.clientY + "px";
 	el.style.display="initial";
 };
 
+function switchVFO() {
+	console.log("switching VFO");
+	req = new XMLHttpRequest();
+	req.open("POST",'/wrr/send',true);
+	req.setRequestHeader("wrr-command","switch-vfo");
+	req.send();
+}
+
+function switchSplit() {
+	console.log("switching Split");
+	req = new XMLHttpRequest();
+	req.open("POST",'/wrr/send',true);
+	req.setRequestHeader("wrr-command","switch-split");
+	req.send();
+}
+
 window.onclick = function(event) {
 	if (!event.target.matches('.menu')) {
 		var el = document.getElementById('xvtmenu');
 		el.style.display="none";
+		el = document.getElementById('modemenu');
+		el.style.display="none";
 	} else {
+		var el;
 		console.log(event.target.innerHTML);
 		req = new XMLHttpRequest();
 		req.open("POST",'/wrr/send',true);
-		req.setRequestHeader("wrr-command","set-offset");
-		req.setRequestHeader("set-offset",event.target.innerHTML);
+		if (document.getElementById("xvtmenu").contains(event.target) ) {
+			req.setRequestHeader("wrr-command","set-offset");
+			req.setRequestHeader("set-offset",event.target.innerHTML);
+			el = document.getElementById('xvtmenu');
+		}
+		if (document.getElementById("modemenu").contains(event.target) ) {
+			req.setRequestHeader("wrr-command","set-mode");
+			req.setRequestHeader("set-mode",event.target.innerHTML);
+			el = document.getElementById('modemenu');
+		}
 		req.send();
-		var el = document.getElementById('xvtmenu');
 		el.style.display="none";
 	};
 };
@@ -138,11 +189,11 @@ window.onclick = function(event) {
 		</table>
 	<table>
 	<tr>
-		<td class="mode" id="vfo">vfo: A</td>
-		<td class="stat" id="split">split</td>
+		<td class="mode" id="vfo" onclick="switchVFO()">vfo: A</td>
+		<td class="stat" id="split" onclick="switchSplit()">split</td>
 		<td class="stat" id="hiswr">HI SWR</td>
 		<td class="stat" id="discr">centered</td>
-		<td class="mode" id="mode">USB</td>
+		<td class="mode" id="mode" onmousedown="showmenu(event)">USB</td>
 	</tr>
 	</table>
 <svg height="70" width="100">
@@ -176,6 +227,7 @@ window.onclick = function(event) {
 	</tr>
 	</table>
 </div>
+
 <div class="menu" id="xvtmenu">
 <table>
 <tr class="menu"><td class="menu"> None - 0 MHz
@@ -185,5 +237,19 @@ window.onclick = function(event) {
 <tr class="menu"><td class="menu"> 6cm - 5326 MHz
 </table>
 </div>
+
+<div class="menu" id="modemenu">
+<table>
+<tr class="menu"><td class="menu"> usb
+<tr class="menu"><td class="menu"> lsb
+<tr class="menu"><td class="menu"> cw
+<tr class="menu"><td class="menu"> fm
+<tr class="menu"><td class="menu"> am
+<tr class="menu"><td class="menu"> digi
+<tr class="menu"><td class="menu"> packet
+</table>
+</div>
+
+
 </body>
 </html>

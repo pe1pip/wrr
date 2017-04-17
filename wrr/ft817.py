@@ -2,6 +2,7 @@
 
 from redis import StrictRedis
 import serial
+import time
 
 redis = StrictRedis()
 
@@ -27,6 +28,12 @@ redis = StrictRedis()
 # - split: are we in split TX operation?
 # - hiswr: is the SWR too high?
 
+# trx1cmd is a list of commands to the trx
+# format: "cmd:data"
+# "switch-vfo:"
+# "set-frequency:freq_in_hz"
+# "set-split:<on|off>"
+
 modes = {
 	0: "lsb",
 	1: "usb",
@@ -39,6 +46,18 @@ modes = {
 	12: "pkt"
 }
 
+modi = {
+	"lsb": "00",
+	"usb": "01",
+	"cw": "02",
+	"cwr": "03",
+	"am": "04",
+	"wfm": "06",
+	"fm": "08",
+	"dig": "0a",
+	"pkt": "0c"
+}
+
 commands = {
 	'read_rx' : '00 00 00 00 e7',
 	'read_tx' : '00 00 00 00 f7',
@@ -48,7 +67,7 @@ commands = {
 	'ptt_on' : '00 00 00 00 08',
 	'ptt_off' : '00 00 00 00 88',
 	'set_freq' : '{} {} {} {} 01',
-	'set_mode' : '00 00 00 00 07',
+	'set_mode' : '{} 00 00 00 07',
 	'clar_on' : '00 00 00 00 05',
 	'clar_off' : '00 00 00 00 85',
 	'set_clar' : '00 00 00 00 f5',
@@ -88,8 +107,9 @@ class trx:
 		self.hiswr = False
 		self.ptt = False
 		self.pubsub = pubsubname
+		self.cmdq = pubsubname + 'cmd'
 		self.serialname = serialname
-		self.serialport = serial.Serial(serialname, 4800, timeout=0.2)
+		self.serialport = serial.Serial(serialname, 4800, timeout=0.3)
 
 	def printFreq(self):
 		print(self.vfoa.freq)
@@ -187,7 +207,12 @@ class trx:
 		self.serialport.write(cmd)
 		# read the reply
 		freqmode = self.serialport.read(5)
+		if len(freqmode) < 5:
+			time.sleep(0.5)
+			self.serialport.write(cmd)
+			freqmode = self.serialport.read(5)
 		freqmode = list(freqmode)
+		print(freqmode)
 		# determine the vfo
 		vfo = self.vfoa
 		if self.vfo == 'b':
@@ -235,13 +260,34 @@ class trx:
 		self.serialport.write(cmd)
 
 	def toggleVFO(self):
+		# send the toggle_vfo command to the rig
 		cmd = bytes.fromhex(commands['toggle_vfo'])
 		self.serialport.write(cmd)
+		# update our internal administration
 		if self.vfo == 'a':
 			self.vfo = 'b'
 		else:
 			self.vfo = 'a'
-		self.readFreq()
+		# for some undocumented reason the command returns a 'zero' byte
+		a = self.serialport.read(5)
+		# read the frequency from the rig
+		self.readFreqMode()
+		# and publish that is has changed (even if it hasn't)
+		redis.publish(self.pubsub,"freq")
+
+	def toggleSplit(self):
+		if self.split:
+			print("Switching split off")
+			cmd = commands['split_off']
+			self.split=False
+		else:
+			print("Switching split on")
+			cmd = commands['split_on']
+			self.split=True
+		self.serialport.write(bytes.fromhex(cmd))
+		a = self.serialport.read(5)
+		redis.hset(self.pubsub,"split",int(self.split))
+		redis.publish(self.pubsub,"tx")
 
 	def lockON(self):
 		cmd = bytes.fromhex(commands['lock_on'])
@@ -259,3 +305,24 @@ class trx:
 		f4 = "{:02d}".format(int(freq/1000000 % 100))
 		cmd = bytes.fromhex(commands['set_freq'].format(f4, f3, f2, f1))
 		self.serialport.write(cmd)
+
+	def setMode(self, mode):
+		if mode not in modi:
+			print("mode {} not found".format(mode))
+			return
+		mode = modi[mode]	# translate to code
+		cmd = bytes.fromhex(commands['set_mode'].format(mode))
+		self.serialport.write(cmd)
+		a = self.serialport.read(5)
+		print(a)
+
+	def doCmd(self):
+		while int(redis.llen(self.cmdq)) > 0:
+			cmd = redis.lpop(self.cmdq).decode('ascii')
+			(cmd,args) = cmd.split(':',1)
+			if cmd == 'switch-vfo':
+				self.toggleVFO()
+			if cmd == 'switch-split':
+				self.toggleSplit()
+			if cmd == 'set-mode':
+				self.setMode(args)

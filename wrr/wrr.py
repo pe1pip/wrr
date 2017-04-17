@@ -17,6 +17,16 @@ offsets = {
 	"6cm - 5328 MHz": 5328000000
 }
 
+modi = {
+	"lsb": "lsb",
+	"usb": "usb",
+	"fm": "fm",
+	"am": "am",
+	"cw": "cw",
+	"digi": "dig",
+	"packet": "pkt"
+}
+
 def setOffset(val):
 	if val in offsets:
 		offset = offsets[val]
@@ -67,6 +77,17 @@ def mkrxled():
 			led = 'rx'
 	return 'data: {{ "led": "{}" }}\n\n'.format(led)
 
+def mktxdata():
+	sp = int(redis.hget('trx1','split'))
+	hi = int(redis.hget('trx1','hiswr'))
+	split = "off"
+	if sp:
+		split = "on"
+	hiswr = "off"
+	if hi:
+		hiswr = "on"
+	return 'data: {{ "split": "{}", "hiswr": "{}" }}\n\n'.format(split,hiswr) 
+
 def eventStream():
 	pubsub = redis.pubsub(ignore_subscribe_messages=True)
 	pubsub.subscribe('trx1')
@@ -79,7 +100,7 @@ def eventStream():
 			if mtype == 'ps':
 				data = mkrxled()
 			if mtype == 'tx':
-				continue
+				data = mktxdata()
 			if mtype == 'rx':
 				continue
 			if mtype == 'dummy':
@@ -92,6 +113,21 @@ def eventStream():
 	except OSError:
 		pubsub.unsubscribe('trx1')
 	
+def switchVFO():
+	redis.lpush('trx1cmd','switch-vfo:')
+	return 204
+
+def switchSplit():
+	redis.lpush('trx1cmd','switch-split:')
+	return 204
+
+def setMode(mode):
+	if mode not in modi:
+		return 404
+	else:
+		mode = modi[mode]
+		redis.lpush('trx1cmd','set-mode:'+mode)
+		return 204
 
 @app.route('/')
 def route():
@@ -107,7 +143,14 @@ def stream():
 
 @app.route('/send', methods=['GET', 'POST'])
 def send():
+	rc = 404
 	command = request.headers['wrr-command']
 	if command == 'set-offset':
 		rc = setOffset(request.headers['set-offset'].strip())
+	if command == 'switch-vfo':
+		rc = switchVFO()
+	if command == 'switch-split':
+		rc = switchSplit()
+	if command == 'set-mode':
+		rc = setMode(request.headers['set-mode'].strip())
 	return "", rc
