@@ -17,6 +17,19 @@ So further goals:
  6. Control transverter off-set
  7. Select a transverter
 
+## Screenshot
+
+![WRR screenshot](WRR%20-%20Screen%20Shot.png)
+
+ * Top: The transverter frequency: click the MHz part to select a different offset
+ * vfo: The current VFO, click to switch VFO
+ * split: split mode: clcik to switch the split mode on, text becomes green when in split mode
+ * HI SWR: Hi SWR indication, text becomes red when teh TRX replorts a high SWR
+ * centered: green when in FM and the frequencies match
+ * usb: current modulation, click to get a drop-down to select a mode
+ * Green dot: Squelsh is open, will turn red when transmitting, greq when the squelsh is closed in receive mode
+ * Bottom: the real frequency the rig is tuned to
+
 ## Note:
 
 Code is in alpha state. I've been able to display the freq. on the rig on the website, but nothing more has been tested.
