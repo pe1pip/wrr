@@ -19,7 +19,7 @@ So further goals:
 
 ## Screenshot
 
-![alt text](https://github.com/pe1pip/wrr/WRR - Screen Shot.png)
+![alt text](https://github.com/pe1pip/wrr/blob/master/WRR%20-%20Screen%20Shot.png WRR - Screen Shot)
 
 ## Note:
 
