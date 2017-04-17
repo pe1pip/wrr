@@ -17,6 +17,10 @@ So further goals:
  6. Control transverter off-set
  7. Select a transverter
 
+## Screenshot
+
+![alt text](https://github.com/pe1pip/wrr/WRR - Screen Shot.png)
+
 ## Note:
 
 Code is in alpha state. I've been able to display the freq. on the rig on the website, but nothing more has been tested.
