@@ -27,6 +27,18 @@ modi = {
 	"packet": "pkt"
 }
 
+rptmodi = {
+	"off": ["off", "00000000"],
+	"+1.6": ["+", "01600000"],
+	"-1.6": ["-", "01600000"],
+	"+5.0": ["+", "05000000"],
+	"-5.0": ["-", "05000000"],
+	"+7.6": ["+", "07600000"],
+	"-7.6": ["-", "07600000"],
+	"+9.6": ["+", "09600000"],
+	"-9.6": ["-", "09600000"],
+}
+
 def setOffset(val):
 	if val in offsets:
 		offset = offsets[val]
@@ -129,6 +141,14 @@ def setMode(mode):
 		redis.lpush('trx1cmd','set-mode:'+mode)
 		return 204
 
+def setRepeater(rpt):
+	if rpt not in rptmodi:
+		return 404
+	else:
+		(mode,offset) = rptmodi[rpt]
+		print("Mode: {}, Offset: {}".format(mode,offset))
+		return 204
+
 @app.route('/')
 def route():
 	mf = redis.get('main_freq')
@@ -153,4 +173,6 @@ def send():
 		rc = switchSplit()
 	if command == 'set-mode':
 		rc = setMode(request.headers['set-mode'].strip())
+	if command == 'set-repeater':
+		rc = setRepeater(request.headers['set-repeater'].strip())
 	return "", rc

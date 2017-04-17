@@ -212,7 +212,6 @@ class trx:
 			self.serialport.write(cmd)
 			freqmode = self.serialport.read(5)
 		freqmode = list(freqmode)
-		print(freqmode)
 		# determine the vfo
 		vfo = self.vfoa
 		if self.vfo == 'b':
@@ -314,7 +313,6 @@ class trx:
 		cmd = bytes.fromhex(commands['set_mode'].format(mode))
 		self.serialport.write(cmd)
 		a = self.serialport.read(5)
-		print(a)
 
 	def doCmd(self):
 		while int(redis.llen(self.cmdq)) > 0:

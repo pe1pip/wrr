@@ -44,6 +44,14 @@ td.mode {
 	border: 1px solid black;
 	width: 60px;
 }
+td.dupmode {
+	text-align: left;
+	border: 1px solid black;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	padding-right: 5px;
+	padding-left: 5px;
+}
 
 </style>
 
@@ -123,6 +131,9 @@ function showmenu(event) {
 	if ( id == "mode" ) {
 		el = document.getElementById("modemenu");
 	};
+	if ( id == "dupset" ) {
+		el = document.getElementById("rptmenu");
+	};
 	el.style.left = event.clientX + "px";
 	el.style.top = event.clientY + "px";
 	el.style.display="initial";
@@ -150,6 +161,8 @@ window.onclick = function(event) {
 		el.style.display="none";
 		el = document.getElementById('modemenu');
 		el.style.display="none";
+		el = document.getElementById('rptmenu');
+		el.style.display="none";
 	} else {
 		var el;
 		console.log(event.target.innerHTML);
@@ -165,10 +178,21 @@ window.onclick = function(event) {
 			req.setRequestHeader("set-mode",event.target.innerHTML);
 			el = document.getElementById('modemenu');
 		}
+		if (document.getElementById("rptmenu").contains(event.target) ) {
+			req.setRequestHeader("wrr-command","set-repeater");
+			req.setRequestHeader("set-repeater",event.target.innerHTML);
+			el = document.getElementById('rptmenu');
+		}
 		req.send();
 		el.style.display="none";
 	};
 };
+
+function setFreq(event) {
+	t = event.target.id;
+	d = event.deltaY;
+	console.log("Target: " + t + " key: " + d);
+}
 		
 </script>
 </head>
@@ -196,24 +220,24 @@ window.onclick = function(event) {
 		<td class="mode" id="mode" onmousedown="showmenu(event)">USB</td>
 	</tr>
 	</table>
-<svg height="70" width="100">
-  <defs>
-    <radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" style="stop-color:rgb(170,170,170);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
-    </radialGradient>
-    <radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" style="stop-color:rgb(0,225,0);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
-    </radialGradient>
-    <radialGradient id="grad3" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-      <stop offset="0%" style="stop-color:rgb(225,0,0);stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
-    </radialGradient>
-  </defs>
-  <circle id="txrxled" cx="50" cy="38" r="25" fill="url(#grad1)" />
-  Sorry, your browser does not support inline SVG.
-</svg>
+	<svg height="70" width="100">
+		<defs>
+			<radialGradient id="grad1" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+				<stop offset="0%" style="stop-color:rgb(170,170,170);stop-opacity:1" />
+				<stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+			</radialGradient>
+			<radialGradient id="grad2" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+				<stop offset="0%" style="stop-color:rgb(0,225,0);stop-opacity:1" />
+				<stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+			</radialGradient>
+			<radialGradient id="grad3" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+				<stop offset="0%" style="stop-color:rgb(225,0,0);stop-opacity:1" />
+				<stop offset="100%" style="stop-color:rgb(255,255,255);stop-opacity:1" />
+			</radialGradient>
+		</defs>
+		<circle id="txrxled" cx="50" cy="38" r="25" fill="url(#grad1)" />
+		Sorry, your browser does not support inline SVG.
+	</svg>
 	<table class="subt">
 	<tr>
 		<td class="freq">MHz
@@ -221,9 +245,15 @@ window.onclick = function(event) {
 		<td class="freq">Hz
 	</tr>
 	<tr>
-		<td class="sub" id="sm">----
-		<td class="sub" id="sk">---
-		<td class="sub" id="sh">---
+		<td class="sub" id="sm" onwheel="setFreq(event)">----
+		<td class="sub" id="sk" onwheel="setFreq(event)">---
+		<td class="sub" id="sh" onwheel="setFreq(event)">---
+	</tr>
+	</table>
+	<table class="duplex">
+	<tr>	
+		<td class="dupmode"> Repeater shift
+		<td class="dupmode" id="dupset" onmousedown="showmenu(event)">off
 	</tr>
 	</table>
 </div>
@@ -249,6 +279,21 @@ window.onclick = function(event) {
 <tr class="menu"><td class="menu"> packet
 </table>
 </div>
+
+<div class="menu" id="rptmenu">
+<table>
+<tr class="menu"><td class="menu"> -9.6
+<tr class="menu"><td class="menu"> -7.6
+<tr class="menu"><td class="menu"> -5.0
+<tr class="menu"><td class="menu"> -1.6
+<tr class="menu"><td class="menu"> off
+<tr class="menu"><td class="menu"> +1.6
+<tr class="menu"><td class="menu"> +5.0
+<tr class="menu"><td class="menu"> +7.6
+<tr class="menu"><td class="menu"> +9.6
+</table>
+</div>
+
 
 
 </body>
